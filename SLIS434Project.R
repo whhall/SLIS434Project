@@ -1,5 +1,28 @@
+install.packages("usmap")
+library(usmap)
+
+library(learningr)
 library(ggplot2)
+library(janitor)
+install.packages("ggpubr")
+library(ggpubr)
+install.packages("tidyverse")
+library(tidyverse)
+library(Hmisc)
+install.packages("corrplot")
+library(corrplot)
+install.packages("PerformanceAnalytics")
+library(PerformanceAnalytics)
+
+require(learningr)
 require(ggplot2)
+require(janitor)
+require(ggpubr)
+require(tidyverse)
+require(Hmisc)
+require(corrplot)
+require(PerformanceAnalytics)
+
 COVID_data_file <- file.choose()
 df <- read.csv(COVID_data_file)
 View(df)
@@ -65,3 +88,59 @@ f_plot_variable <- function(v1, v2, c, s, x, y){
 
 f_plot_variable("State", "COVID.19.Cases", "red", 2, "State", "Number of Cases")
 
+f_US_Map_Variable <- function(v, c, lc, hc){
+  df_2 <- df
+  df_2$fips <- fips(df_2$State)
+  
+  plot_usmap(data = df_2, values = v, color = c) + 
+    scale_fill_continuous(low = lc, high = hc, label = scales::comma) +
+    theme(legend.position = "right")
+}
+
+f_US_Map_Variable("COVID.19.Cases", "red", "blue", "orange")
+
+
+f_US_Map_Variable_Reg_Div <- function(v, r, c, lc, hc){
+  df_2 <- df
+  df_2$fips <- fips(df_2$State)
+  
+  plot_usmap(data = df_2, include = r, values = v, color = c) + 
+    scale_fill_continuous(low = lc, high = hc, label = scales::comma) +
+    theme(legend.position = "right")
+}
+
+f_US_Map_Variable_Reg_Div("COVID.19.Cases", c(.south_region),  "red", "blue", "orange")
+
+f_US_Map_Variable_Correlation <- function(x, y){
+  ggscatter(df, x = x, y = y,
+            add = "reg.line", 
+            conf.int = TRUE,
+            cor.coef = TRUE,
+            cor.method = "pearson",
+            xlab = x, ylab = y)
+}
+
+f_US_Map_Variable_Correlation("COVID.19.Death.Rate", "COVID.19.Cases")
+
+cor_df
+f_US_Map_Variable_Correlogram <- function(m, t, s) {
+  cor_df <- rcorr(data.matrix(df[,2:ncol(df)]))
+  
+  M_df <- cor_df$r
+  p_mat_df <- cor_df$P
+  
+  
+  corrplot(M_df, method = m, type = t, order = "hclust", 
+           p.mat = p_mat_df, sig.level = s, insig = "blank")
+}
+
+f_US_Map_Variable_Correlogram("color","lower", "0.05")
+
+f_US_Map_Variable_Multi_Figs_corr <- function(){
+  par(mar = c(0,0,0,0))
+  cor_df <- rcorr(data.matrix(df[,2:ncol(df)]))
+  
+  chart.Correlation(cor_df, histogram = TRUE, pch = 19)
+}
+
+f_US_Map_Variable_Multi_Figs_corr()
