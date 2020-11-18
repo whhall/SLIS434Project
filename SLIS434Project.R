@@ -138,9 +138,8 @@ f_US_Map_Variable_Correlogram("color","lower", "0.05")
 
 f_US_Map_Variable_Multi_Figs_corr <- function(){
   par(mar = c(0,0,0,0))
-  cor_df <- rcorr(data.matrix(df[,2:ncol(df)]))
   
-  chart.Correlation(cor_df, histogram = TRUE, pch = 19)
+  chart.Correlation(df[,2:ncol(df)], histogram = TRUE, pch = 19)
 }
 
 f_US_Map_Variable_Multi_Figs_corr()
